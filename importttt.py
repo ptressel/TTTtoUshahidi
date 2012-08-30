@@ -126,7 +126,7 @@ def upload_csv_file():
         #auth_in       = row[15]
         id_in         = row[16]
 
-        if (EVENTNAME and event_in == EVENTNAME):
+        if (EVENTNAME and (event_in == EVENTNAME) and (int(id_in) >= START_TTT_ID)):
             #Use location and title data if it exists
             if loc_in == "NA" or loc_in == "":
                 location = DEFAULT_LOCATION
@@ -242,6 +242,7 @@ if __name__ == '__main__':
     CATEGORY  = args["category"]
     EVENTNAME = args["ttt_event"]
     BASEURL = args["url"]
+    START_TTT_ID = int(args["start_ttt_id"])
     if not BASEURL.endswith("/"):
         BASEURL += "/"
     URL = BASEURL + "api"
