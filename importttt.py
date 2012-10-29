@@ -151,6 +151,7 @@ def upload_csv_file(csv_contents, log_uploaded=False, log_rejected=True):
         if id_in > last_ttt_id:
             last_ttt_id = id_in
 
+        event_in = event_in.lstrip("#").lower()
         if (EVENTNAMES and (event_in in EVENTNAMES) and (id_in >= START_TTT_ID)):
             #Use location and title data if it exists
             if loc_in == "NA" or loc_in == "":
@@ -331,11 +332,12 @@ def write_cache(last_ttt_id, last_file_num):
 # Sample command line:
 #
 # python importttt.py \
-#   --input_url=http://www.cs.colorado.edu/~starbird/TtT_for_Sandy/TtT_records-
+#   --input_url http://www.cs.colorado.edu/~starbird/TtT_for_Sandy/TtT_records-
 #   --sequential_files \
-#   --start_file_number=1 \
-#   --fetch_interval=10 \
-#   --map_url=https://hurricanesandy.crowdmap.com/
+#   --start_file_number 1 \
+#   --fetch_interval 10 \
+#   --ttt_events sandy,frankenstorm,njwx,vawx,pawx,ncwx,mdwx,nywx
+#   --map_url https://hurricanesandy.crowdmap.com/
 #
 # @ToDo: Add args for map username and password, and do preepmtive auth via the
 # HTTP auth header.
@@ -397,7 +399,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--map_url", dest="map_url", help="url of the Ushahidi site")
     parser.add_argument(
-        "--ttt_events", dest="ttt_events", help="names of TtT events separated by commas; only rows with these events will be used")
+        "--ttt_events", dest="ttt_events", help="names of TtT events separated by commas; case and initial # are ignored; only rows with these events will be used")
     parser.add_argument(
         "--report_title", dest="report_title", help="title to use for TtT records that have no report name")
     parser.add_argument(
@@ -418,7 +420,7 @@ if __name__ == '__main__':
     CATEGORY_NO_LAT_LON = args["category_no_lat_lon"]
     DEFAULT_LAT = args["default_lat"]
     DEFAULT_LON = args["default_lon"]
-    EVENTNAMES = args["ttt_event"].split(",")
+    EVENTNAMES = [event.lstrip("#").lower() for event in args["ttt_event"].split(",")]
     REPORT_TITLE = args["report_title"]
     MAP_BASE_URL = args["map_url"]
     START_TTT_ID = args["start_ttt_id"]
