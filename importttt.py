@@ -70,7 +70,7 @@ def upload_report(
         payload['incident_video'] = video
 
     #Add report to Ushahidi site
-    result = requests.post(MAP_API_URL, data=payload)
+    result = requests.post(MAP_API_URL, data=payload, **MAP_AUTH)
     
     return(result)
 
@@ -332,12 +332,14 @@ def write_cache(last_ttt_id, last_file_num):
 # Sample command line:
 #
 # python importttt.py \
-#   --input_url http://www.cs.colorado.edu/~starbird/TtT_for_Sandy/TtT_records-
+#   --input_url http://www.cs.colorado.edu/~starbird/TtT_for_Sandy/TtT_records- \
 #   --sequential_files \
 #   --start_file_number 1 \
 #   --fetch_interval 10 \
-#   --ttt_events sandy,frankenstorm,njwx,vawx,pawx,ncwx,mdwx,nywx
-#   --map_url https://hurricanesandy.crowdmap.com/
+#   --ttt_events sandy,frankenstorm,njwx,vawx,pawx,ncwx,mdwx,nywx \
+#   --map_url https://hurricanesandy.crowdmap.com/ \
+#   --map_user joe_mapper \
+#   --map_password my!really^secure?password
 #
 # @ToDo: Add args for map username and password, and do preepmtive auth via the
 # HTTP auth header.
@@ -350,22 +352,24 @@ if __name__ == '__main__':
         """,
         usage = """
         python importttt.py
-            --input_file=[input csv file path, for a local file]
-            --input_url=[input csv URL file or prefix, for remote file(s)]
-            --sequential_files=[whether input_url is a prefix & needs <number>.csv postpended]
-            --fetch_interval=[minutes to wait between fetch requests]
-            --start_file_number=[first number to postpend to URL if sequential_files is True]
-            --map_url=[url of the Ushahidi site]
-            --category=[category id number of un-verified TtT records]
-            --category_no_lat_lon=[category id number of un-verified TtT records without lat lon]
-            --default_lat=[lat to use for records without lat lon]
-            --default_lon=[lon to use for records without lat lon]
-            --ttt_events=[name or list of names of TtT event(s); only rows with these events will be used]
-            --report_title=[title to use for TtT records that have no report name]
-            --start_ttt_id=[TtT id number to begin upload at; only rows with this TtT id or higher will be used]
-            --uploaded=[path for file of successful uploads]
-            --rejected=[path for file of rejected records]
-            --cache_file=[path of file script can use to store info for restart]
+            --input_file [input csv file path, for a local file]
+            --input_url [input csv URL file or prefix, for remote file(s)]
+            --sequential_files [whether input_url is a prefix & needs <number>.csv postpended]
+            --fetch_interval [minutes to wait between fetch requests]
+            --start_file_number [first number to postpend to URL if sequential_files is True]
+            --map_url [url of the Ushahidi site]
+            --map_user [Ushahidi account to use]
+            --map_password [password for Ushahidi account]
+            --category [category id number of un-verified TtT records]
+            --category_no_lat_lon [category id number of un-verified TtT records without lat lon]
+            --default_lat [lat to use for records without lat lon]
+            --default_lon [lon to use for records without lat lon]
+            --ttt_events [name or list of names of TtT event(s); only rows with these events will be used]
+            --report_title [title to use for TtT records that have no report name]
+            --start_ttt_id [TtT id number to begin upload at; only rows with this TtT id or higher will be used]
+            --uploaded [path for file of successful uploads]
+            --rejected [path for file of rejected records]
+            --cache_file [path of file script can use to store info for restart]
         Most incident-specific arguments are required and not defaulted,
         with the exception that input_file is mutually exclusive with input_url,
         and postpend_number and fetch_interval are only relevant with input_url.
@@ -397,9 +401,14 @@ if __name__ == '__main__':
     parser.add_argument(
         "--default_lon", dest="default_lon", default="0", help="default lon to use for TtT records without lat lon")
     parser.add_argument(
-        "--map_url", dest="map_url", help="url of the Ushahidi site")
+        "--map_url", dest="map_url", help="url of the Ushahidi site, use https for security")
     parser.add_argument(
-        "--ttt_events", dest="ttt_events", help="names of TtT events separated by commas; case and initial # are ignored; only rows with these events will be used")
+        "--map_user", dest="map_user", help="Ushahidi account to use")
+    parser.add_argument(
+        "--map_password", dest="map_password", help="Password for Ushahidi account")
+    parser.add_argument(
+        "--ttt_events", dest="ttt_events", default="",
+        help="names of TtT events separated by commas; case and initial # are ignored; if this is specified, only rows with these events will be used")
     parser.add_argument(
         "--report_title", dest="report_title", help="title to use for TtT records that have no report name")
     parser.add_argument(
@@ -423,6 +432,13 @@ if __name__ == '__main__':
     EVENTNAMES = [event.lstrip("#").lower() for event in args["ttt_event"].split(",")]
     REPORT_TITLE = args["report_title"]
     MAP_BASE_URL = args["map_url"]
+    MAP_USER = args["map_user"]
+    MAP_PASSWORD = args["map_password"]
+    # Support no auth for older maps. Ushahidi 2.6 and later require it.
+    if MAP_USER and MAP_PASSWORD:
+        MAP_AUTH = {"auth" : "%s@%s" % (MAP_USER, MAP_PASSWORD)}
+    else:
+        MAP_AUTH = {}
     START_TTT_ID = args["start_ttt_id"]
     CACHE_FILE = args["cache_file"]
     if not MAP_BASE_URL.endswith("/"):
