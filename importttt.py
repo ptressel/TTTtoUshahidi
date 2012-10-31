@@ -21,7 +21,7 @@ import sys
 # The next TtT id key to accept, and the number of the next sequential file
 # to fetch are saved to disk, in case the script exits.  When the script is
 # restarted, the greater of the cached values or the command args are used.
-NEXT_TTT_ID_KEY = "next_ttt_id_key"
+NEXT_TTT_ID_KEY = "next_ttt_id"
 NEXT_FILE_NUM_KEY = "next_file_num"
 
 # @ToDo: Add constants here for defaults to make them easier to change.
@@ -302,7 +302,7 @@ def read_cache():
         @return: (nest TtT id #, next file sequence number)
     """
 
-    next_nums = dict(next_ttt_id = 1, next_file_num = 1)
+    next_nums = {NEXT_TTT_ID_KEY:1, NEXT_FILE_NUM_KEY:1}
     try:
         cin = open(CACHE_FILE, "r")
         for line in cin:
@@ -430,7 +430,7 @@ if __name__ == '__main__':
     CATEGORY_NO_LAT_LON = args["category_no_lat_lon"]
     DEFAULT_LAT = args["default_lat"]
     DEFAULT_LON = args["default_lon"]
-    EVENTNAMES = [event.lstrip("#").lower() for event in args["ttt_event"].split(",")]
+    EVENTNAMES = [event.lstrip("#").lower() for event in args["ttt_events"].split(",")]
     REPORT_TITLE = args["report_title"]
     MAP_BASE_URL = args["map_url"]
     MAP_USER = args["map_user"]
