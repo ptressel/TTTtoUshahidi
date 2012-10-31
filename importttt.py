@@ -339,10 +339,11 @@ def write_cache(last_ttt_id, last_file_num):
 #   --ttt_events sandy,frankenstorm,njwx,vawx,pawx,ncwx,mdwx,nywx \
 #   --map_url https://hurricanesandy.crowdmap.com/ \
 #   --map_user joe_mapper \
-#   --map_password my!really^secure?password
+#   --map_password my!really^secure?password \
+#   --category 11 \
+#   --category_no_lat_lon 12
 #
-# @ToDo: Add args for map username and password, and do preepmtive auth via the
-# HTTP auth header.
+# @ToDo: Set preepmtive auth flag.
 if __name__ == '__main__':
 
     import argparse
@@ -375,7 +376,7 @@ if __name__ == '__main__':
         and postpend_number and fetch_interval are only relevant with input_url.
         """)
     parser.add_argument(
-        "--input_file", dest="input_file", help="input csv file path")
+        "--input_file", dest="input_file", help="Input csv file path.")
     parser.add_argument(
         "--input_url", dest="input_url",
         help="URL of remote csv file or URL prefix for sequential files.")
@@ -389,28 +390,28 @@ if __name__ == '__main__':
         "--start_file_number", dest="start_file_number", type=int, default=1,
         help="First number to postpend to the URL if sequential_files is set. If cache file present, greater of this or value from cache file will be used.")
     parser.add_argument(
-        "--uploaded", dest="uploaded", default="ttt_uploaded.csv", help="path for file of successful uploads")
+        "--uploaded", dest="uploaded", default="ttt_uploaded.csv", help="Path for file of successful uploads")
     parser.add_argument(
-        "--rejected", dest="rejected", default="ttt_rejected.csv", help="path for file of rejected uploads")
+        "--rejected", dest="rejected", default="ttt_rejected.csv", help="ath for file of rejected uploads")
     parser.add_argument(
-        "--category", dest="category", default="67", help="category id number of un-verified TtT records")
+        "--category", dest="category", default="67", help="ategory id number of un-verified TtT records")
     parser.add_argument(
-        "--category_no_lat_lon", dest="category_no_lat_lon", default="68", help="category id number of un-verified TtT records that lack lat lon")
+        "--category_no_lat_lon", dest="category_no_lat_lon", default="68", help="ategory id number of un-verified TtT records that lack lat lon")
     parser.add_argument(
-        "--default_lat", dest="default_lat", default="0", help="default lat to use for TtT records without lat lon")
+        "--default_lat", dest="default_lat", default="0", help="Default lat to use for TtT records without lat lon")
     parser.add_argument(
-        "--default_lon", dest="default_lon", default="0", help="default lon to use for TtT records without lat lon")
+        "--default_lon", dest="default_lon", default="0", help="Default lon to use for TtT records without lat lon")
     parser.add_argument(
-        "--map_url", dest="map_url", help="url of the Ushahidi site, use https for security")
+        "--map_url", dest="map_url", help="URL of the Ushahidi site. Use https for security. For Crowdmap or Ushahidi v2.6 or later, https is required.")
     parser.add_argument(
-        "--map_user", dest="map_user", help="Ushahidi account to use")
+        "--map_user", dest="map_user", help="Account for map site. For Crowdmap, use CrowdmapID account, not an account for the individual map.")
     parser.add_argument(
-        "--map_password", dest="map_password", help="Password for Ushahidi account")
+        "--map_password", dest="map_password", help="Password for map account.")
     parser.add_argument(
         "--ttt_events", dest="ttt_events", default="",
-        help="names of TtT events separated by commas; case and initial # are ignored; if this is specified, only rows with these events will be used")
+        help="Names of TtT events separated by commas; case and initial # are ignored; if this is specified, only rows with these events will be used")
     parser.add_argument(
-        "--report_title", dest="report_title", help="title to use for TtT records that have no report name")
+        "--report_title", dest="report_title", help="Title to use for TtT records that have no report name")
     parser.add_argument(
         "--start_ttt_id", dest="start_ttt_id", type=int, default=1,
         help="TtT id number to begin upload at; only rows with this TtT id or higher will be used. If cache file present, greater of this or value from cache file will be used.")
